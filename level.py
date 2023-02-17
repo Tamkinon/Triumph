@@ -174,6 +174,7 @@ class Level:
                     player.rect.left = sprite.rect.right
                 elif player.direction.x > 0:
                     if 0 != player.direction.y != 0.9:
+                        player.wall_slide_index += 1
                         if player.wall_slide_index == 1:
                             self.particles.add(assets.Particle(player.rect.midtop))
                         elif player.wall_slide_index == 30:
@@ -348,6 +349,8 @@ class Level:
             sprite.update()
         for sprite in self.scores.sprites():
             sprite.update()
+        if self.flag:
+            self.flag.update()
         if self.player.sprite.rect.bottom > 924:
             self.game_state = 0
         elif self.player.sprite.rect.top < 156:
@@ -370,6 +373,7 @@ class Level:
         self.all_sprites.add(self.particles)
         self.all_sprites.add(self.strawberries)
         self.all_sprites.add(self.scores)
+        self.all_sprites.add(self.flag)
         if self.game_state == 1:
             self.horizontal_movement_collision()
             self.vertical_movement_collision()

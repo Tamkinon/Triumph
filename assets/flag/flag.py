@@ -12,12 +12,12 @@ class Flag(pygame.sprite.Sprite):
 
     def update(self):
         self.index += 1
-        if self.index % 6 == 0:
-            self.image = pygame.image.load('assets/flag/flag3')
+        if self.index % 30 == 0:
+            self.image = pygame.image.load('assets/flag/flag3.png')
             self.image = pygame.transform.scale(self.image, (96, 48))
-        elif self.index % 4 == 0:
-            self.image = pygame.image.load('assets/flag/flag2')
+        elif self.index % 20 == 0:
+            self.image = pygame.image.load('assets/flag/flag2.png')
             self.image = pygame.transform.scale(self.image, (96, 48))
-        elif self.index % 2 == 0:
-            self.image = pygame.image.load('assets/flag/flag1')
+        elif self.index % 10 == 0:
+            self.image = pygame.image.load('assets/flag/flag1.png')
             self.image = pygame.transform.scale(self.image, (96, 48))

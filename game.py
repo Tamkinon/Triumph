@@ -27,6 +27,7 @@ game_state = GameStates.TITLE_SCREEN
 def main():
     global level, level_index, game_state, title_bg
     strawberry = False
+    deaths = 0
     score = 0
     pygame.display.set_caption("Celeste")
     rectangles = pygame.sprite.Group()
@@ -42,6 +43,7 @@ def main():
         if game_state == GameStates.GAMEPLAY:
             if level.game_state == 0:
                 if level.death_time == 1:
+                    deaths += 1
                     death_sound = mixer.Sound('assets/sfx/sfx0.wav')
                     death_sound.set_volume(0.15)
                     death_sound.play()
@@ -84,6 +86,8 @@ def main():
             rectangles.draw(screen)
             level.run()
             level.all_sprites.draw(screen)
+            if level.flag and level.flag.sprite.touched:
+                screen.blit(pygame.Surface((800, 300)), (800, 500))
         elif game_state == GameStates.TITLE_SCREEN:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -118,3 +122,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
