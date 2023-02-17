@@ -36,7 +36,7 @@ levels = [
         'XXXXXXXXXXXX  XX',
     ],
     [
-        '                ',
+        'XXXXXX    XXXXXX',
         '           O    ',
         '                ',
         '                ',
@@ -54,22 +54,3 @@ levels = [
         'XXXXXXXXXXXXXXXX',
     ]
 ]
-
-final_level = [
-        '                ',
-        '           O    ',
-        '                ',
-        '                ',
-        '                ',
-        '         S      ',
-        '         X      ',
-        '             O  ',
-        '                ',
-        '                ',
-        '                ',
-        '     ^^  XXXXXXX',
-        '     XX         ',
-        '     XX      $  ',
-        ' P   XX         ',
-        'XXXXXXXXXXXXXXXX',
-    ]

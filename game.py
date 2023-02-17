@@ -75,6 +75,8 @@ def main():
                         exit()
                     if event.key == pygame.K_r:
                         game_state = GameStates.TITLE_SCREEN
+                        title_bg = TitleAnimation.ANIMATION[0]
+                        title_bg = pygame.transform.scale(title_bg, (768, 768))
                     level.player.sprite.key_x = event.key == pygame.K_x
                     level.player.sprite.key_c = event.key == pygame.K_c
                 if event.type == pygame.KEYUP:
@@ -87,16 +89,22 @@ def main():
             level.run()
             level.all_sprites.draw(screen)
             if level.flag and level.flag.sprite.touched:
-                screen.blit(pygame.Surface((800, 300)), (800, 500))
+                screen.blit(pygame.Surface((384, 192)), (576 + (768 - 384) / 2, 160))
+                score_surface = font.render("X" + str(score), 1, 'white')
+                screen.blit(score_surface, (576 + (768 - 384) / 2 + 180, 160 + 30))
+                strawberry_score = pygame.image.load("assets/strawberry/strawberry.png").convert_alpha()
+                screen.blit(strawberry_score, (576 + (768 - 384) / 2 + 132, 160 + 30))
         elif game_state == GameStates.TITLE_SCREEN:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:
                         mixer.music.stop()
                         game_state = GameStates.ANIMATION
+                        animation_time = 0
                         startup_sound = mixer.Sound('assets/sfx/sfx38.wav')
                         startup_sound.set_volume(0.15)
                         startup_sound.play()
+
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         exit()
