@@ -19,7 +19,7 @@ title_bg = pygame.transform.scale(title_bg, (768, 768))
 console_bg = pygame.image.load('assets/consolebg.png').convert_alpha()
 console_bg = pygame.transform.scale(console_bg, (screen_width, screen_height))
 score_box = pygame.image.load("assets/score_box.png").convert_alpha()
-score_box = pygame.transform.scale(score_box, (384, 192))
+score_box = pygame.transform.scale(score_box, (384, 198))
 mixer.music.load('assets/sfx/menu_mus.wav')
 mixer.music.set_volume(0.15)
 mixer.music.play(-1)
@@ -69,6 +69,10 @@ def main():
                 level_index += 1
                 display_time_time = 0
                 level = Level(levels[level_index], screen)
+                if level.flag:
+                    mixer.music.stop()
+                    mixer.music.load('assets/sfx/end_mus.wav')
+                    mixer.music.play(-1)
                 strawberry = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -160,11 +164,11 @@ def display_score(score, time, deaths):
     time = frames_to_clock(time)
     screen.blit(score_box, (576 + (768 - 384) / 2, 160))
     score_surface = score_font.render("   X   " + str(score), 1, 'white')
-    screen.blit(score_surface, (576 + (768 - 384) / 2 + 90, 160 + 20))
+    screen.blit(score_surface, (576 + (768 - 384) / 2 + 90, 160 + 25))
     time_surface = score_font.render("   " + time, 1, 'white')
-    screen.blit(time_surface, (576 + (768 - 384) / 2 + 90, 160 + 75))
+    screen.blit(time_surface, (576 + (768 - 384) / 2 + 90, 160 + 80))
     deaths_surface = score_font.render("   X   " + str(deaths), 1, 'white')
-    screen.blit(deaths_surface, (576 + (768 - 384) / 2 + 90, 160 + 130))
+    screen.blit(deaths_surface, (576 + (768 - 384) / 2 + 90, 160 + 135))
 
 
 if __name__ == '__main__':

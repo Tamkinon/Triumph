@@ -20,10 +20,10 @@ class Level:
         self.scores = pygame.sprite.Group()
         self.flag = pygame.sprite.GroupSingle()
         self.all_sprites = pygame.sprite.Group()
-        self.game_state = 1
+        self.game_state = 0
         self.player_spawn = ()
         self.completed = False
-        self.death_time = 0
+        self.death_time = 30
         self.strawberry_collected = False
         self.setup_level(level_data)
 
@@ -148,61 +148,62 @@ class Level:
 
     def horizontal_movement_collision(self):
         player = self.player.sprite
-        player.rect.x += player.direction.x * player.speed
+        player.hitbox.x += player.direction.x * player.speed
         tile_found = False
         near_tile = False
-        if player.rect.left <= 576:
-            player.rect.left = 576
+        keys = pygame.key.get_pressed()
+        if player.hitbox.left <= 576:
+            player.hitbox.left = 576
             player.direction.x = 0
-        elif player.rect.right >= 1344:
-            player.rect.right = 1344
+        elif player.hitbox.right >= 1344:
+            player.hitbox.right = 1344
             player.direction.x = 0
         for sprite in self.tiles.sprites():
-            if sprite.rect.colliderect(player.rect):
-                tile_found = True
-                player.dash_index = 10
+            if sprite.rect.colliderect(player.hitbox):
+                if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
+                    tile_found = True
                 if player.wall_jumping:
                     player.wall_jump_index = player.wall_jump_time + 1
                 if player.direction.x < 0:
-                    if 0 != player.direction.y != 0.9:
+                    if player.direction.y not in [0, 0.9, -7]:
                         player.wall_slide_index += 1
                         if player.wall_slide_index == 1:
                             self.particles.add(assets.Particle((player.rect.left - player.rect.width / 2, player.rect.top)))
                         elif player.wall_slide_index == 20:
                             player.wall_slide_index = 0
                     player.on_wall = 'left'
-                    player.rect.left = sprite.rect.right
+                    player.hitbox.left = sprite.rect.right
                 elif player.direction.x > 0:
-                    if 0 != player.direction.y != 0.9:
+                    if player.direction.y not in [0, 0.9, -7]:
                         player.wall_slide_index += 1
                         if player.wall_slide_index == 1:
                             self.particles.add(assets.Particle(player.rect.midtop))
                         elif player.wall_slide_index == 30:
                             player.wall_slide_index = 0
                     player.on_wall = 'right'
-                    player.rect.right = sprite.rect.left
+                    player.hitbox.right = sprite.rect.left
                 player.direction.x = 0
             else:
-                if sprite.rect.top < player.rect.centery < sprite.rect.bottom and player.rect.right == sprite.rect.left:
+                if sprite.rect.top < player.hitbox.centery < sprite.rect.bottom and player.hitbox.right == sprite.rect.left:
                     player.on_wall = 'right'
                     near_tile = True
-                elif sprite.rect.top < player.rect.centery < sprite.rect.bottom and player.rect.left == sprite.rect.right:
+                elif sprite.rect.top < player.hitbox.centery < sprite.rect.bottom and player.rect.left == sprite.rect.right:
                     player.on_wall = 'left'
                     near_tile = True
         for sprite in self.springs.sprites():
-            if sprite.rect.colliderect(player.rect) and sprite.state == 1:
+            if sprite.rect.colliderect(player.hitbox) and sprite.state == 1:
                 self.particles.add(assets.Particle(player.rect.topleft))
                 spring_sound = mixer.Sound('assets/sfx/sfx8.wav')
                 spring_sound.set_volume(0.15)
                 spring_sound.play()
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
-                player.jump(-18)
+                player.jump(-20)
                 player.can_jump = False
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.hitbox):
                 self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.rect) and (player.dashing or not player.can_dash) and sprite.state:
@@ -215,7 +216,7 @@ class Level:
         vanish_found = False
         near_vanish = False
         for sprite in self.vanish_boxes.sprites():
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.hitbox):
                 if sprite.state != 2:
                     if sprite.state == 0:
                         vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
@@ -225,18 +226,18 @@ class Level:
                     player.dash_index = 10
                     player.wall_jump_index = player.wall_jump_time + 1
                     if player.direction.x < 0:
-                        player.rect.left = sprite.rect.right
+                        player.hitbox.left = sprite.rect.right
                     elif player.direction.x > 0:
-                        player.rect.right = sprite.rect.left
+                        player.hitbox.right = sprite.rect.left
                     player.direction.x = 0
                     sprite.state = 1
             else:
                 if sprite.state != 2:
-                    if (sprite.rect.top < player.rect.bottom < sprite.rect.bottom or sprite.rect.top < player.rect.top < sprite.rect.bottom) and player.rect.right == sprite.rect.left:
+                    if (sprite.rect.top < player.hitbox.bottom < sprite.rect.bottom or sprite.rect.top < player.hitbox.top < sprite.rect.bottom) and player.hitbox.right == sprite.rect.left:
                         player.on_wall = 'right'
                         sprite.state = 1
                         near_vanish = True
-                    elif (sprite.rect.top < player.rect.bottom < sprite.rect.bottom or sprite.rect.top < player.rect.top < sprite.rect.bottom) and player.rect.left == sprite.rect.right:
+                    elif (sprite.rect.top < player.hitbox.bottom < sprite.rect.bottom or sprite.rect.top < player.hitbox.top < sprite.rect.bottom) and player.hitbox.left == sprite.rect.right:
                         player.on_wall = 'left'
                         sprite.state = 1
                         near_vanish = True
@@ -261,7 +262,7 @@ class Level:
         player = self.player.sprite
         player.apply_gravity()
         for sprite in self.tiles.sprites():
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.hitbox):
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
                 if player.direction.y > 0:
@@ -271,31 +272,31 @@ class Level:
                             can_dash_sound.set_volume(0.15)
                             can_dash_sound.play()
                         self.particles.add(assets.Particle(player.rect.midleft))
-                    player.rect.bottom = sprite.rect.top
+                    player.hitbox.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.near_wall = False
                     player.can_jump = True
                     player.can_dash = True
                 elif player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
+                    player.hitbox.top = sprite.rect.bottom
                     player.direction.y = 0
         for sprite in self.springs.sprites():
-            if sprite.rect.colliderect(player.rect) and sprite.state == 1:
+            if sprite.rect.colliderect(player.hitbox) and sprite.state == 1:
                 self.particles.add(assets.Particle(player.rect.topleft))
                 spring_sound = mixer.Sound('assets/sfx/sfx8.wav')
                 spring_sound.set_volume(0.15)
                 spring_sound.play()
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
-                player.jump(-18)
+                player.jump(-20)
                 player.can_jump = False
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.hitbox):
                 self.game_state = 0
         for sprite in self.orbs.sprites():
-            if sprite.rect.colliderect(player.rect) and (player.dashing or not player.can_dash) and sprite.state:
+            if sprite.rect.colliderect(player.hitbox) and (player.dashing or not player.can_dash) and sprite.state:
                 self.particles.add(assets.OrbParticle(sprite.rect.topleft))
                 orb_sound = mixer.Sound('assets/sfx/sfx6.wav')
                 orb_sound.set_volume(0.15)
@@ -303,22 +304,22 @@ class Level:
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.vanish_boxes.sprites():
-            if sprite.rect.colliderect(player.rect) and sprite.state != 2:
+            if sprite.rect.colliderect(player.hitbox) and sprite.state != 2:
                 player.wall_jump_index = player.wall_jump_time + 1
                 player.dash_index = 10
                 if player.direction.y > 0:
                     vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
                     vanish_box_sound.set_volume(0.15)
                     vanish_box_sound.play()
-                    player.rect.bottom = sprite.rect.top
+                    player.hitbox.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.can_jump = True
                     player.can_dash = True
                     player.dash_index = 0
+                    sprite.state = 1
                 elif player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
+                    player.hitbox.top = sprite.rect.bottom
                     player.direction.y = 0
-                sprite.state = 1
         for sprite in self.strawberries:
             if sprite.rect.colliderect(player.rect):
                 strawberry_sound = mixer.Sound('assets/sfx/sfx13.wav')
@@ -327,8 +328,11 @@ class Level:
                 self.strawberry_collected = True
                 self.scores.add(assets.Score(sprite.rect.midtop))
                 sprite.kill()
-        if self.flag and self.flag.sprite.rect.colliderect(player.rect):
+        if self.flag and self.flag.sprite.rect.colliderect(player.rect) and not self.flag.sprite.touched:
             self.flag.sprite.touched = True
+            flag_sound = mixer.Sound('assets/sfx/sfx55.wav')
+            flag_sound.set_volume(0.7)
+            flag_sound.play()
 
     def run(self):
         self.player.sprite.animate()

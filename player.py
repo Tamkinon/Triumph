@@ -11,6 +11,7 @@ img_red_run_3 = pygame.image.load('assets/player/run/run_right_2.png').convert_a
 img_red_wall = pygame.image.load('assets/player/wall_right.png').convert_alpha()
 img_blue_jump = pygame.image.load('assets/player/blue_jump_right.png').convert_alpha()
 img_blue_wall = pygame.image.load('assets/player/blue_wall_right.png').convert_alpha()
+img_jump = pygame.image.load('assets/player/jump.png').convert_alpha()
 
 
 class Player(pygame.sprite.Sprite):
@@ -22,6 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.animation_index = 0
         self.animate_time = 0
         self.rect = self.image.get_rect(topleft=pos)
+        self.hitbox = pygame.rect.Rect(self.rect.left, self.rect.top + 24, 48, 24)
         self.facing = 'right'
         self.on_wall = 'right'
         self.near_wall = False
@@ -31,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.dash_index = 0
         self.dash_inc = 1
         self.wall_jump_index = 0
-        self.wall_jump_time = 15
+        self.wall_jump_time = 12
         self.wall_slide_index = 0
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 3
@@ -52,7 +54,7 @@ class Player(pygame.sprite.Sprite):
         elif not self.can_jump and not self.can_dash:
             self.image = pygame.transform.flip(img_blue_jump, self.facing == 'left', False)
         elif (not self.can_jump or 0.9 != self.direction.y != 0) and self.can_dash:
-            self.image = pygame.transform.flip(img_red_run_2_or_jump, self.facing == 'left', False)
+            self.image = pygame.transform.flip(img_jump, self.facing == 'left', False)
         else:
             if self.direction.x != 0:
                 self.image = pygame.transform.flip(self.red_animation[self.animation_index], self.direction.x < 0, False)
@@ -82,7 +84,7 @@ class Player(pygame.sprite.Sprite):
         self.wall_jump_index += 1
         if self.wall_jump_index >= self.wall_jump_time:
             self.wall_jumping = False
-            self.direction.y = 0
+            self.direction.y = -5
             self.wall_jump_index = 0
 
     def get_input(self):
@@ -163,7 +165,7 @@ class Player(pygame.sprite.Sprite):
             self.direction.y += self.gravity
         if self.direction.y > self.terminal_velocity and not self.dashing:
             self.direction.y = self.terminal_velocity
-        self.rect.y += self.direction.y
+        self.hitbox.y += self.direction.y
 
     def jump(self, speed):
         self.direction.y = speed
@@ -216,5 +218,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         if self.alive:
+            self.rect.bottomleft = self.hitbox.bottomleft
+            pygame.draw.rect(screen, 'green', self.hitbox, 2)
             self.get_input()
-        self.rect.x += self.direction.x * self.speed
+        self.hitbox.x += self.direction.x * self.speed
