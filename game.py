@@ -18,6 +18,8 @@ title_bg = pygame.image.load('assets/titlebg.png').convert_alpha()
 title_bg = pygame.transform.scale(title_bg, (768, 768))
 console_bg = pygame.image.load('assets/consolebg.png').convert_alpha()
 console_bg = pygame.transform.scale(console_bg, (screen_width, screen_height))
+score_box = pygame.image.load("assets/score_box.png").convert_alpha()
+score_box = pygame.transform.scale(score_box, (384, 192))
 mixer.music.load('assets/sfx/menu_mus.wav')
 mixer.music.set_volume(0.15)
 mixer.music.play(-1)
@@ -32,6 +34,8 @@ def main():
     pygame.display.set_caption("Celeste")
     rectangles = pygame.sprite.Group()
     time = 0
+    speed_run_time = 0
+    display_time_time = -1
     animation_time = 0
     while True:
         time += 1
@@ -43,6 +47,7 @@ def main():
         if game_state == GameStates.GAMEPLAY:
             if level.game_state == 0:
                 if level.death_time == 1:
+                    display_time_time = 0
                     deaths += 1
                     death_sound = mixer.Sound('assets/sfx/sfx0.wav')
                     death_sound.set_volume(0.15)
@@ -62,6 +67,7 @@ def main():
                     strawberry = True
             if level.completed:
                 level_index += 1
+                display_time_time = 0
                 level = Level(levels[level_index], screen)
                 strawberry = False
             for event in pygame.event.get():
@@ -71,9 +77,11 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
-                        print(score)
                         exit()
                     if event.key == pygame.K_r:
+                        level_index = 0
+                        mixer.music.load('assets/sfx/menu_mus.wav')
+                        mixer.music.play(-1)
                         game_state = GameStates.TITLE_SCREEN
                         title_bg = TitleAnimation.ANIMATION[0]
                         title_bg = pygame.transform.scale(title_bg, (768, 768))
@@ -88,12 +96,18 @@ def main():
             rectangles.draw(screen)
             level.run()
             level.all_sprites.draw(screen)
-            if level.flag and level.flag.sprite.touched:
-                screen.blit(pygame.Surface((384, 192)), (576 + (768 - 384) / 2, 160))
-                score_surface = font.render("X" + str(score), 1, 'white')
-                screen.blit(score_surface, (576 + (768 - 384) / 2 + 180, 160 + 30))
-                strawberry_score = pygame.image.load("assets/strawberry/strawberry.png").convert_alpha()
-                screen.blit(strawberry_score, (576 + (768 - 384) / 2 + 132, 160 + 30))
+            if display_time_time != -1 and display_time_time < 90:
+                display_time_time += 1
+                screen.blit(pygame.Surface((176, 38)), (576 + 24, 156 + 24))
+                score_surface = time_font.render(frames_to_clock(speed_run_time), 1, 'white')
+                screen.blit(score_surface, (576 + 30, 156 + 30))
+            else:
+                display_time_time = -1
+            if level.flag:
+                if level.flag.sprite.touched:
+                    display_score(score, speed_run_time, deaths)
+            else:
+                speed_run_time += 1
         elif game_state == GameStates.TITLE_SCREEN:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -118,14 +132,39 @@ def main():
                     title_bg = TitleAnimation.ANIMATION[animation_time // 10 - 1]
                     title_bg = pygame.transform.scale(title_bg, (768, 768))
             else:
+                speed_run_time = 0
+                deaths = 0
+                score = 0
                 mixer.music.load('assets/sfx/game_mus.wav')
                 mixer.music.play(-1)
                 game_state = GameStates.GAMEPLAY
-
+                level = Level(levels[level_index], screen)
+                strawberry = False
             screen.blit(title_bg, (576, 156))
         screen.blit(console_bg, (0, 0))
         pygame.display.update()
         clock.tick(60)
+
+
+def frames_to_clock(frames):
+    sec = frames // 60
+    sec = sec % (24 * 3600)
+    hour = sec // 3600
+    sec %= 3600
+    minutes = sec // 60
+    sec %= 60
+    return "%02d:%02d:%02d" % (hour, minutes, sec)
+
+
+def display_score(score, time, deaths):
+    time = frames_to_clock(time)
+    screen.blit(score_box, (576 + (768 - 384) / 2, 160))
+    score_surface = score_font.render("   X   " + str(score), 1, 'white')
+    screen.blit(score_surface, (576 + (768 - 384) / 2 + 90, 160 + 20))
+    time_surface = score_font.render("   " + time, 1, 'white')
+    screen.blit(time_surface, (576 + (768 - 384) / 2 + 90, 160 + 75))
+    deaths_surface = score_font.render("   X   " + str(deaths), 1, 'white')
+    screen.blit(deaths_surface, (576 + (768 - 384) / 2 + 90, 160 + 130))
 
 
 if __name__ == '__main__':

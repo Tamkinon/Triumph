@@ -353,7 +353,7 @@ class Level:
             self.flag.update()
         if self.player.sprite.rect.bottom > 924:
             self.game_state = 0
-        elif self.player.sprite.rect.top < 156:
+        elif self.player.sprite.rect.top < 156 and not self.flag:
             self.completed = True
         if self.game_state == 0:
             self.player.sprite.alive = False
