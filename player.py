@@ -117,7 +117,7 @@ class Player(pygame.sprite.Sprite):
                 jump_sound.set_volume(0.15)
                 jump_sound.play()
                 self.key_c = False
-                self.jump(-13)
+                self.jump(-14)
                 self.can_jump = False
             if self.key_x and self.can_dash:
                 dash_sound = mixer.Sound('assets/sfx/sfx3.wav')
