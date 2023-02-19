@@ -33,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.dash_index = 0
         self.dash_inc = 1
         self.wall_jump_index = 0
-        self.wall_jump_time = 12
+        self.wall_jump_time = 13
         self.wall_slide_index = 0
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 3
@@ -219,6 +219,5 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if self.alive:
             self.rect.bottomleft = self.hitbox.bottomleft
-            pygame.draw.rect(screen, 'green', self.hitbox, 2)
             self.get_input()
         self.hitbox.x += self.direction.x * self.speed

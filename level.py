@@ -249,8 +249,11 @@ class Level:
                 self.strawberry_collected = True
                 self.scores.add(assets.Score(sprite.rect.midtop))
                 sprite.kill()
-        if self.flag and self.flag.sprite.rect.colliderect(player.rect):
+        if self.flag and self.flag.sprite.rect.colliderect(player.rect) and not self.flag.sprite.touched:
             self.flag.sprite.touched = True
+            flag_sound = mixer.Sound('assets/sfx/sfx55.wav')
+            flag_sound.set_volume(0.7)
+            flag_sound.play()
         if tile_found or vanish_found:
             player.terminal_velocity = 3
         else:

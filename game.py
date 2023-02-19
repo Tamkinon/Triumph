@@ -67,12 +67,13 @@ def main():
                     strawberry = True
             if level.completed:
                 level_index += 1
-                display_time_time = 0
                 level = Level(levels[level_index], screen)
                 if level.flag:
                     mixer.music.stop()
                     mixer.music.load('assets/sfx/end_mus.wav')
                     mixer.music.play(-1)
+                else:
+                    display_time_time = 0
                 strawberry = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
