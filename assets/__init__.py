@@ -10,3 +10,4 @@ from .strawberry.score.score import Score
 from .dash_orb.Orb_Particle.orb_particle import OrbParticle
 from .death_particle.death_particle import DeathParticle
 from .flag.flag import Flag
+from .cloud.cloud import Cloud

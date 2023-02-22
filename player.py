@@ -1,6 +1,7 @@
 import pygame
 from pygame import mixer
 import assets
+
 pygame.init()
 screen = pygame.display.set_mode((1280, 704))
 
@@ -43,6 +44,8 @@ class Player(pygame.sprite.Sprite):
         self.key_c = False
         self.can_jump = True
         self.alive = True
+        self.on_cloud = False
+        self.on_cloud_vel = 0
 
     def animate(self):
         animation_cooldown = 8
@@ -57,7 +60,8 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(img_jump, self.facing == 'left', False)
         else:
             if self.direction.x != 0:
-                self.image = pygame.transform.flip(self.red_animation[self.animation_index], self.direction.x < 0, False)
+                self.image = pygame.transform.flip(self.red_animation[self.animation_index], self.direction.x < 0,
+                                                   False)
                 self.animate_time += 1
                 self.animation_index = self.animate_time // animation_cooldown
                 if self.animation_index == 4:
@@ -220,4 +224,7 @@ class Player(pygame.sprite.Sprite):
         if self.alive:
             self.rect.bottomleft = self.hitbox.bottomleft
             self.get_input()
-        self.hitbox.x += self.direction.x * self.speed
+        if self.on_cloud:
+            self.hitbox.x += self.direction.x * self.speed + self.on_cloud_vel
+        else:
+            self.hitbox.x += self.direction.x * self.speed

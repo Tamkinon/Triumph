@@ -19,6 +19,7 @@ class Level:
         self.strawberries = pygame.sprite.Group()
         self.scores = pygame.sprite.Group()
         self.flag = pygame.sprite.GroupSingle()
+        self.clouds = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
         self.game_state = 0
         self.player_spawn = ()
@@ -145,10 +146,19 @@ class Level:
                 if cell == 'F':
                     flag = assets.Flag((col_index * tile_size + 576, row_index * tile_size + 156))
                     self.flag.add(flag)
+                if cell == '{':
+                    cloud = assets.Cloud((col_index * tile_size + 576, row_index * tile_size + 156), -1)
+                    self.clouds.add(cloud)
+                if cell == '}':
+                    cloud = assets.Cloud((col_index * tile_size + 576, row_index * tile_size + 156), 1)
+                    self.clouds.add(cloud)
 
     def horizontal_movement_collision(self):
         player = self.player.sprite
-        player.hitbox.x += player.direction.x * player.speed
+        if player.on_cloud:
+            player.hitbox.x += player.direction.x * player.speed + player.on_cloud_vel
+        else:
+            player.hitbox.x += player.direction.x * player.speed
         tile_found = False
         near_tile = False
         keys = pygame.key.get_pressed()
@@ -203,7 +213,7 @@ class Level:
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.colliderect(player.hitbox):
+            if sprite.rect.collidepoint(player.hitbox.midleft) or sprite.rect.collidepoint(player.hitbox.midright):
                 self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.rect) and (player.dashing or not player.can_dash) and sprite.state:
@@ -234,10 +244,18 @@ class Level:
             else:
                 if sprite.state != 2:
                     if (sprite.rect.top < player.hitbox.bottom < sprite.rect.bottom or sprite.rect.top < player.hitbox.top < sprite.rect.bottom) and player.hitbox.right == sprite.rect.left:
+                        if sprite.state == 0:
+                            vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
+                            vanish_box_sound.set_volume(0.15)
+                            vanish_box_sound.play()
                         player.on_wall = 'right'
                         sprite.state = 1
                         near_vanish = True
                     elif (sprite.rect.top < player.hitbox.bottom < sprite.rect.bottom or sprite.rect.top < player.hitbox.top < sprite.rect.bottom) and player.hitbox.left == sprite.rect.right:
+                        if sprite.state == 0:
+                            vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
+                            vanish_box_sound.set_volume(0.15)
+                            vanish_box_sound.play()
                         player.on_wall = 'left'
                         sprite.state = 1
                         near_vanish = True
@@ -296,7 +314,7 @@ class Level:
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.colliderect(player.hitbox):
+            if sprite.rect.collidepoint(player.hitbox.midleft) or sprite.rect.collidepoint(player.hitbox.midright):
                 self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.hitbox) and (player.dashing or not player.can_dash) and sprite.state:
@@ -311,9 +329,10 @@ class Level:
                 player.wall_jump_index = player.wall_jump_time + 1
                 player.dash_index = 10
                 if player.direction.y > 0:
-                    vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
-                    vanish_box_sound.set_volume(0.15)
-                    vanish_box_sound.play()
+                    if sprite.state == 0:
+                        vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
+                        vanish_box_sound.set_volume(0.15)
+                        vanish_box_sound.play()
                     player.hitbox.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.can_jump = True
@@ -331,6 +350,29 @@ class Level:
                 self.strawberry_collected = True
                 self.scores.add(assets.Score(sprite.rect.midtop))
                 sprite.kill()
+        cloud_found = False
+        for sprite in self.clouds.sprites():
+            if sprite.rect.colliderect(player.hitbox) and sprite.state == 1 and player.direction.y > 0:
+                cloud_found = True
+                player.dash_index = 10
+                player.wall_jump_index = player.wall_jump_time + 1
+                if player.direction.y not in [0, 0.9, 1.8]:
+                    if not player.can_dash:
+                        can_dash_sound = mixer.Sound('assets/sfx/sfx54.wav')
+                        can_dash_sound.set_volume(0.15)
+                        can_dash_sound.play()
+                    self.particles.add(assets.Particle(player.rect.midleft))
+                player.hitbox.bottom = sprite.rect.top
+                player.direction.y = 0
+                player.near_wall = False
+                player.can_jump = True
+                player.can_dash = True
+                player.on_cloud_vel = sprite.vel
+            if sprite.rect.top > player.hitbox.centery:
+                sprite.state = 1
+            else:
+                sprite.state = 0
+        player.on_cloud = cloud_found
         if self.flag and self.flag.sprite.rect.colliderect(player.rect) and not self.flag.sprite.touched:
             self.flag.sprite.touched = True
             flag_sound = mixer.Sound('assets/sfx/sfx55.wav')
@@ -356,6 +398,8 @@ class Level:
             sprite.update()
         for sprite in self.scores.sprites():
             sprite.update()
+        for sprite in self.clouds.sprites():
+            sprite.update()
         if self.flag:
             self.flag.update()
         if self.player.sprite.rect.bottom > 924:
@@ -371,6 +415,7 @@ class Level:
         else:
             self.player.sprite.alive = True
         self.player.sprite.update()
+        self.all_sprites.add(self.clouds)
         self.all_sprites.add(self.orbs)
         self.all_sprites.add(self.tiles)
         self.all_sprites.add(self.vanish_boxes)
@@ -381,6 +426,7 @@ class Level:
         self.all_sprites.add(self.strawberries)
         self.all_sprites.add(self.scores)
         self.all_sprites.add(self.flag)
+
         if self.game_state == 1:
             self.horizontal_movement_collision()
             self.vertical_movement_collision()
