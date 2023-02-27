@@ -174,24 +174,44 @@ class Level:
                     tile_found = True
                 if player.wall_jumping:
                     player.wall_jump_index = player.wall_jump_time + 1
-                if player.direction.x < 0:
-                    if player.direction.y not in [0, 0.9, -7]:
-                        player.wall_slide_index += 1
-                        if player.wall_slide_index == 1:
-                            self.particles.add(assets.Particle((player.rect.left - player.rect.width / 2, player.rect.top)))
-                        elif player.wall_slide_index == 20:
-                            player.wall_slide_index = 0
-                    player.on_wall = 'left'
-                    player.hitbox.left = sprite.rect.right
-                elif player.direction.x > 0:
-                    if player.direction.y not in [0, 0.9, -7]:
-                        player.wall_slide_index += 1
-                        if player.wall_slide_index == 1:
-                            self.particles.add(assets.Particle(player.rect.midtop))
-                        elif player.wall_slide_index == 30:
-                            player.wall_slide_index = 0
-                    player.on_wall = 'right'
-                    player.hitbox.right = sprite.rect.left
+                if player.on_cloud:
+                    if player.direction.x + player.on_cloud_vel < 0:
+                        if player.direction.y not in [0, 0.6, -7]:
+                            player.wall_slide_index += 1
+                            if player.wall_slide_index == 1:
+                                self.particles.add(assets.Particle((player.rect.left - player.rect.width / 2, player.rect.top)))
+                            elif player.wall_slide_index == 20:
+                                player.wall_slide_index = 0
+                        player.on_wall = 'left'
+                        player.hitbox.left = sprite.rect.right
+                    elif player.direction.x + player.on_cloud_vel > 0:
+                        if player.direction.y not in [0, 0.6, -7]:
+                            player.wall_slide_index += 1
+                            if player.wall_slide_index == 1:
+                                self.particles.add(assets.Particle(player.rect.midtop))
+                            elif player.wall_slide_index == 30:
+                                player.wall_slide_index = 0
+                        player.on_wall = 'right'
+                        player.hitbox.right = sprite.rect.left
+                else:
+                    if player.direction.x < 0:
+                        if player.direction.y not in [0, 0.6, -7]:
+                            player.wall_slide_index += 1
+                            if player.wall_slide_index == 1:
+                                self.particles.add(assets.Particle((player.rect.left - player.rect.width / 2, player.rect.top)))
+                            elif player.wall_slide_index == 20:
+                                player.wall_slide_index = 0
+                        player.on_wall = 'left'
+                        player.hitbox.left = sprite.rect.right
+                    elif player.direction.x > 0:
+                        if player.direction.y not in [0, 0.6, -7]:
+                            player.wall_slide_index += 1
+                            if player.wall_slide_index == 1:
+                                self.particles.add(assets.Particle(player.rect.midtop))
+                            elif player.wall_slide_index == 30:
+                                player.wall_slide_index = 0
+                        player.on_wall = 'right'
+                        player.hitbox.right = sprite.rect.left
                 player.direction.x = 0
             else:
                 if sprite.rect.top < player.hitbox.centery < sprite.rect.bottom and player.hitbox.right == sprite.rect.left:
@@ -213,7 +233,7 @@ class Level:
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.collidepoint(player.hitbox.midleft) or sprite.rect.collidepoint(player.hitbox.midright):
+            if sprite.rect.colliderect(pygame.Rect(player.rect.left + 3, player.rect.top, 42, 24)):
                 self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.rect) and (player.dashing or not player.can_dash) and sprite.state:
@@ -235,9 +255,9 @@ class Level:
                     vanish_found = True
                     player.dash_index = 10
                     player.wall_jump_index = player.wall_jump_time + 1
-                    if player.direction.x < 0:
+                    if player.direction.x + player.on_cloud_vel < 0:
                         player.hitbox.left = sprite.rect.right
-                    elif player.direction.x > 0:
+                    elif player.direction.x + player.on_cloud_vel > 0:
                         player.hitbox.right = sprite.rect.left
                     player.direction.x = 0
                     sprite.state = 1
@@ -270,7 +290,7 @@ class Level:
         if self.flag and self.flag.sprite.rect.colliderect(player.rect) and not self.flag.sprite.touched:
             self.flag.sprite.touched = True
             flag_sound = mixer.Sound('assets/sfx/sfx55.wav')
-            flag_sound.set_volume(0.7)
+            flag_sound.set_volume(0.6)
             flag_sound.play()
         if tile_found or vanish_found:
             player.terminal_velocity = 3
@@ -287,7 +307,7 @@ class Level:
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
                 if player.direction.y > 0:
-                    if player.direction.y not in [0, 0.9, 1.8]:
+                    if player.direction.y not in [0, 0.6, 1.2]:
                         if not player.can_dash:
                             can_dash_sound = mixer.Sound('assets/sfx/sfx54.wav')
                             can_dash_sound.set_volume(0.15)
@@ -314,7 +334,7 @@ class Level:
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.collidepoint(player.hitbox.midleft) or sprite.rect.collidepoint(player.hitbox.midright):
+            if sprite.rect.colliderect(pygame.Rect(player.rect.left + 3, player.rect.top, 42, 24)):
                 self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.hitbox) and (player.dashing or not player.can_dash) and sprite.state:
@@ -356,7 +376,7 @@ class Level:
                 cloud_found = True
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
-                if player.direction.y not in [0, 0.9, 1.8]:
+                if player.direction.y not in [0, 0.6, 1.2]:
                     if not player.can_dash:
                         can_dash_sound = mixer.Sound('assets/sfx/sfx54.wav')
                         can_dash_sound.set_volume(0.15)
@@ -376,7 +396,7 @@ class Level:
         if self.flag and self.flag.sprite.rect.colliderect(player.rect) and not self.flag.sprite.touched:
             self.flag.sprite.touched = True
             flag_sound = mixer.Sound('assets/sfx/sfx55.wav')
-            flag_sound.set_volume(0.7)
+            flag_sound.set_volume(0.6)
             flag_sound.play()
 
     def run(self):
@@ -402,9 +422,9 @@ class Level:
             sprite.update()
         if self.flag:
             self.flag.update()
-        if self.player.sprite.rect.bottom > 924:
+        if self.player.sprite.rect.top > 924:
             self.game_state = 0
-        elif self.player.sprite.rect.top < 156 and not self.flag:
+        elif self.player.sprite.rect.centery < 156 and not self.flag:
             self.completed = True
         if self.game_state == 0:
             self.player.sprite.alive = False

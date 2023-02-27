@@ -8,7 +8,7 @@ class Cloud(pygame.sprite.Sprite):
         self.image = pygame.image.load("assets/cloud/cloud.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (96, 48))
         self.rect = self.image.get_rect(topleft=pos)
-        self.vel = 3 * direction
+        self.vel = 2 * direction
 
     def update(self):
         self.rect.x += self.vel

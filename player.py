@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite):
         self.wall_slide_index = 0
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 3
-        self.gravity = 0.9
+        self.gravity = 0.6
         self.terminal_velocity = 10
         self.key_x = False
         self.key_c = False
@@ -56,7 +56,7 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(img_red_wall, self.on_wall == 'left', False)
         elif not self.can_jump and not self.can_dash:
             self.image = pygame.transform.flip(img_blue_jump, self.facing == 'left', False)
-        elif (not self.can_jump or 0.9 != self.direction.y != 0) and self.can_dash:
+        elif (not self.can_jump or 0.6 != self.direction.y != 0) and self.can_dash:
             self.image = pygame.transform.flip(img_jump, self.facing == 'left', False)
         else:
             if self.direction.x != 0:
@@ -102,7 +102,7 @@ class Player(pygame.sprite.Sprite):
                 self.facing = "left"
             else:
                 self.direction.x = 0
-            if self.key_c and (self.terminal_velocity == 3 or self.near_wall) and 0.9 != self.direction.y != 0:
+            if self.key_c and (self.terminal_velocity == 3 or self.near_wall) and 0.6 != self.direction.y != 0:
                 walljump_sound = mixer.Sound('assets/sfx/sfx2.wav')
                 walljump_sound.set_volume(0.15)
                 walljump_sound.play()
@@ -117,13 +117,13 @@ class Player(pygame.sprite.Sprite):
                     self.wall_jump_right()
                     self.on_wall = 'right'
                     self.facing = 'right'
-            if self.key_c and self.can_jump and (self.direction.y == 0 or self.direction.y == 0.9):
+            if self.key_c and self.can_jump and (self.direction.y == 0 or self.direction.y == 0.6):
                 self.particles.add(assets.Particle(self.rect.midleft))
                 jump_sound = mixer.Sound('assets/sfx/sfx1.wav')
                 jump_sound.set_volume(0.15)
                 jump_sound.play()
                 self.key_c = False
-                self.jump(-14)
+                self.jump(-12)
                 self.can_jump = False
             if self.key_x and self.can_dash:
                 dash_sound = mixer.Sound('assets/sfx/sfx3.wav')
@@ -175,10 +175,10 @@ class Player(pygame.sprite.Sprite):
         self.direction.y = speed
 
     def dash_up(self):
-        self.jump(-12)
+        self.jump(-9)
 
     def dash_down(self):
-        self.jump(12)
+        self.jump(9)
 
     def dash_right(self):
         self.direction.x = 3
@@ -191,34 +191,34 @@ class Player(pygame.sprite.Sprite):
     def dash_up_right(self):
         self.direction.x = 2
         self.direction.y = 0
-        self.jump(-10)
+        self.jump(-7)
 
     def dash_down_right(self):
         self.direction.x = 2
         self.direction.y = 0
-        self.jump(10)
+        self.jump(7)
 
     def dash_up_left(self):
         self.direction.x = -2
         self.direction.y = 0
-        self.jump(-10)
+        self.jump(-7)
 
     def dash_down_left(self):
         self.direction.x = -2
         self.direction.y = 0
-        self.jump(10)
+        self.jump(7)
 
     def wall_jump_right(self):
         self.wall_jump_index = 0
         self.direction.x = 1.5
         self.direction.y = 0
-        self.jump(-7)
+        self.jump(-5)
 
     def wall_jump_left(self):
         self.wall_jump_index = 0
         self.direction.x = -1.25
         self.direction.y = 0
-        self.jump(-7)
+        self.jump(-5)
 
     def update(self):
         if self.alive:
