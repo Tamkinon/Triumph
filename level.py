@@ -228,13 +228,24 @@ class Level:
                 spring_sound.play()
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
-                player.jump(-20)
+                player.jump(-16)
                 player.can_jump = False
+                player.dashing = False
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.colliderect(pygame.Rect(player.rect.left + 3, player.rect.top, 42, 24)):
-                self.game_state = 0
+            if isinstance(sprite, assets.SpikeRight):
+                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom - 1)):
+                    self.game_state = 0
+            elif isinstance(sprite, assets.SpikeLeft):
+                if player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom - 1)):
+                    self.game_state = 0
+            elif isinstance(sprite, assets.SpikeUp):
+                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom - 1)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom - 1)):
+                    self.game_state = 0
+            else:
+                if player.rect.collidepoint((sprite.rect.left + 1, sprite.rect.top + 1)) or player.rect.collidepoint((sprite.rect.right - 1, sprite.rect.top + 1)):
+                    self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.rect) and (player.dashing or not player.can_dash) and sprite.state:
                 self.particles.add(assets.OrbParticle(sprite.rect.topleft))
@@ -248,22 +259,36 @@ class Level:
         for sprite in self.vanish_boxes.sprites():
             if sprite.rect.colliderect(player.hitbox):
                 if sprite.state != 2:
+                    if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
+                        vanish_found = True
                     if sprite.state == 0:
                         vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
                         vanish_box_sound.set_volume(0.15)
                         vanish_box_sound.play()
-                    vanish_found = True
-                    player.dash_index = 10
-                    player.wall_jump_index = player.wall_jump_time + 1
-                    if player.direction.x + player.on_cloud_vel < 0:
+                    if player.direction.x < 0:
+                        if player.direction.y not in [0, 0.6, -7]:
+                            player.wall_slide_index += 1
+                            if player.wall_slide_index == 1:
+                                self.particles.add(
+                                    assets.Particle((player.rect.left - player.rect.width / 2, player.rect.top)))
+                            elif player.wall_slide_index == 20:
+                                player.wall_slide_index = 0
+                        player.on_wall = 'left'
                         player.hitbox.left = sprite.rect.right
-                    elif player.direction.x + player.on_cloud_vel > 0:
+                    elif player.direction.x > 0:
+                        if player.direction.y not in [0, 0.6, -7]:
+                            player.wall_slide_index += 1
+                            if player.wall_slide_index == 1:
+                                self.particles.add(assets.Particle(player.rect.midtop))
+                            elif player.wall_slide_index == 30:
+                                player.wall_slide_index = 0
+                        player.on_wall = 'right'
                         player.hitbox.right = sprite.rect.left
                     player.direction.x = 0
                     sprite.state = 1
             else:
                 if sprite.state != 2:
-                    if (sprite.rect.top < player.hitbox.bottom < sprite.rect.bottom or sprite.rect.top < player.hitbox.top < sprite.rect.bottom) and player.hitbox.right == sprite.rect.left:
+                    if sprite.rect.top < player.hitbox.centery < sprite.rect.bottom and player.hitbox.right == sprite.rect.left:
                         if sprite.state == 0:
                             vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
                             vanish_box_sound.set_volume(0.15)
@@ -271,7 +296,7 @@ class Level:
                         player.on_wall = 'right'
                         sprite.state = 1
                         near_vanish = True
-                    elif (sprite.rect.top < player.hitbox.bottom < sprite.rect.bottom or sprite.rect.top < player.hitbox.top < sprite.rect.bottom) and player.hitbox.left == sprite.rect.right:
+                    elif sprite.rect.top < player.hitbox.centery < sprite.rect.bottom and player.rect.left == sprite.rect.right:
                         if sprite.state == 0:
                             vanish_box_sound = mixer.Sound('assets/sfx/sfx15.wav')
                             vanish_box_sound.set_volume(0.15)
@@ -329,13 +354,24 @@ class Level:
                 spring_sound.play()
                 player.dash_index = 10
                 player.wall_jump_index = player.wall_jump_time + 1
-                player.jump(-20)
+                player.jump(-16)
                 player.can_jump = False
+                player.dashing = False
                 player.can_dash = True
                 sprite.state = 0
         for sprite in self.spikes.sprites():
-            if sprite.rect.colliderect(pygame.Rect(player.rect.left + 3, player.rect.top, 42, 24)):
-                self.game_state = 0
+            if isinstance(sprite, assets.SpikeRight):
+                if player.hitbox.collidepoint((sprite.rect.left, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.left, sprite.rect.bottom - 1)):
+                    self.game_state = 0
+            elif isinstance(sprite, assets.SpikeLeft):
+                if player.hitbox.collidepoint((sprite.rect.right, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.right, sprite.rect.bottom - 1)):
+                    self.game_state = 0
+            elif isinstance(sprite, assets.SpikeUp):
+                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom)):
+                    self.game_state = 0
+            else:
+                if player.rect.collidepoint((sprite.rect.left + 1, sprite.rect.top)) or player.rect.collidepoint((sprite.rect.right - 1, sprite.rect.top)):
+                    self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.hitbox) and (player.dashing or not player.can_dash) and sprite.state:
                 self.particles.add(assets.OrbParticle(sprite.rect.topleft))
@@ -401,8 +437,6 @@ class Level:
 
     def run(self):
         self.player.sprite.animate()
-        if self.player.sprite.dashing and self.game_state == 1:
-            self.player.sprite.inc_dash()
         if self.player.sprite.dash_index % 2 == 0 and 0 != self.player.sprite.dash_index != 10 and self.game_state == 1:
             self.particles.add(assets.Particle(self.player.sprite.rect.topleft))
         self.particles.add(self.player.sprite.particles)
@@ -440,13 +474,14 @@ class Level:
         self.all_sprites.add(self.tiles)
         self.all_sprites.add(self.vanish_boxes)
         self.all_sprites.add(self.springs)
-        self.all_sprites.add(self.player)
         self.all_sprites.add(self.spikes)
+        self.all_sprites.add(self.player)
         self.all_sprites.add(self.particles)
         self.all_sprites.add(self.strawberries)
         self.all_sprites.add(self.scores)
         self.all_sprites.add(self.flag)
-
+        if self.player.sprite.dashing and self.game_state == 1:
+            self.player.sprite.inc_dash()
         if self.game_state == 1:
             self.horizontal_movement_collision()
             self.vertical_movement_collision()

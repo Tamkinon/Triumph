@@ -12,7 +12,7 @@ pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 pygame.mouse.set_visible(False)
-level_index = 0
+level_index = 25
 level = Level(levels[level_index], screen)
 title_bg = pygame.image.load('assets/titlebg.png').convert_alpha()
 title_bg = pygame.transform.scale(title_bg, (768, 768))
