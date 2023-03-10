@@ -222,6 +222,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         if self.alive:
+            self.can_jump = self.direction.y in [-0, 0.6]
             self.rect.bottomleft = self.hitbox.bottomleft
             self.get_input()
         if self.on_cloud:
