@@ -34,7 +34,7 @@ def main():
     deaths = 0
     level_deaths = 0
     score = 0
-    pygame.display.set_caption("Celeste")
+    pygame.display.set_caption("Triumph")
     rectangles = pygame.sprite.Group()
     time = 0
     speed_run_time = 0

@@ -60,8 +60,7 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(img_jump, self.facing == 'left', False)
         else:
             if self.direction.x != 0:
-                self.image = pygame.transform.flip(self.red_animation[self.animation_index], self.direction.x < 0,
-                                                   False)
+                self.image = pygame.transform.flip(self.red_animation[self.animation_index], self.direction.x < 0, False)
                 self.animate_time += 1
                 self.animation_index = self.animate_time // animation_cooldown
                 if self.animation_index == 4:
