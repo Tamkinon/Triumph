@@ -18,6 +18,8 @@ title_bg = pygame.image.load('assets/titlebg.png').convert_alpha()
 title_bg = pygame.transform.scale(title_bg, (768, 768))
 console_bg = pygame.image.load('assets/consolebg.png').convert_alpha()
 console_bg = pygame.transform.scale(console_bg, (screen_width, screen_height))
+stuck_box = pygame.image.load('assets/stuck.png').convert_alpha()
+stuck_box = pygame.transform.scale(stuck_box, (324, 342))
 score_box = pygame.image.load("assets/score_box.png").convert_alpha()
 score_box = pygame.transform.scale(score_box, (384, 198))
 mixer.music.load('assets/sfx/menu_mus.wav')
@@ -30,6 +32,7 @@ def main():
     global level, level_index, game_state, title_bg
     strawberry = False
     deaths = 0
+    level_deaths = 0
     score = 0
     pygame.display.set_caption("Celeste")
     rectangles = pygame.sprite.Group()
@@ -49,6 +52,7 @@ def main():
                 if level.death_time == 1:
                     display_time_time = 0
                     deaths += 1
+                    level_deaths += 1
                     death_sound = mixer.Sound('assets/sfx/sfx0.wav')
                     death_sound.set_volume(0.15)
                     death_sound.play()
@@ -68,6 +72,7 @@ def main():
             if level.completed:
                 level_index += 1
                 level = Level(levels[level_index], screen)
+                level_deaths = 0
                 if level.flag:
                     mixer.music.stop()
                     mixer.music.load('assets/sfx/end_mus.wav')
@@ -90,6 +95,17 @@ def main():
                         game_state = GameStates.TITLE_SCREEN
                         title_bg = TitleAnimation.ANIMATION[0]
                         title_bg = pygame.transform.scale(title_bg, (768, 768))
+                    if event.key == pygame.K_RETURN and level_deaths >= 5:
+                        level_index += 1
+                        level = Level(levels[level_index], screen)
+                        level_deaths = 0
+                        if level.flag:
+                            mixer.music.stop()
+                            mixer.music.load('assets/sfx/end_mus.wav')
+                            mixer.music.play(-1)
+                        else:
+                            display_time_time = 0
+                        strawberry = False
                     level.player.sprite.key_x = event.key == pygame.K_x
                     level.player.sprite.key_c = event.key == pygame.K_c
                 if event.type == pygame.KEYUP:
@@ -139,6 +155,7 @@ def main():
             else:
                 speed_run_time = 0
                 deaths = 0
+                level_deaths = 0
                 score = 0
                 mixer.music.load('assets/sfx/game_mus.wav')
                 mixer.music.play(-1)
@@ -147,6 +164,8 @@ def main():
                 strawberry = False
             screen.blit(title_bg, (576, 156))
         screen.blit(console_bg, (0, 0))
+        if level_deaths >= 5:
+            screen.blit(stuck_box, (1920 - 324 - 66, 108))
         pygame.display.update()
         clock.tick(60)
 
@@ -174,4 +193,3 @@ def display_score(score, time, deaths):
 
 if __name__ == '__main__':
     main()
-

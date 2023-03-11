@@ -235,16 +235,16 @@ class Level:
                 sprite.state = 0
         for sprite in self.spikes.sprites():
             if isinstance(sprite, assets.SpikeRight):
-                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom - 1)):
+                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.top + 2)) or player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom - 2)):
                     self.game_state = 0
             elif isinstance(sprite, assets.SpikeLeft):
-                if player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom - 1)):
+                if player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.top + 2)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom - 2)):
                     self.game_state = 0
             elif isinstance(sprite, assets.SpikeUp):
-                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom - 1)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom - 1)):
+                if player.hitbox.collidepoint((sprite.rect.left + 2, sprite.rect.bottom - 1)) or player.hitbox.collidepoint((sprite.rect.right - 2, sprite.rect.bottom - 1)):
                     self.game_state = 0
             else:
-                if player.rect.collidepoint((sprite.rect.left + 1, sprite.rect.top + 1)) or player.rect.collidepoint((sprite.rect.right - 1, sprite.rect.top + 1)):
+                if player.rect.collidepoint((sprite.rect.left + 2, sprite.rect.top + 1)) or player.rect.collidepoint((sprite.rect.right - 2, sprite.rect.top + 1)):
                     self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.rect) and (player.dashing or not player.can_dash) and sprite.state:
@@ -361,16 +361,16 @@ class Level:
                 sprite.state = 0
         for sprite in self.spikes.sprites():
             if isinstance(sprite, assets.SpikeRight):
-                if player.hitbox.collidepoint((sprite.rect.left, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.left, sprite.rect.bottom - 1)):
+                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.top + 2)) or player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom - 2)):
                     self.game_state = 0
             elif isinstance(sprite, assets.SpikeLeft):
-                if player.hitbox.collidepoint((sprite.rect.right, sprite.rect.top + 1)) or player.hitbox.collidepoint((sprite.rect.right, sprite.rect.bottom - 1)):
+                if player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.top + 2)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom - 2)):
                     self.game_state = 0
             elif isinstance(sprite, assets.SpikeUp):
-                if player.hitbox.collidepoint((sprite.rect.left + 1, sprite.rect.bottom)) or player.hitbox.collidepoint((sprite.rect.right - 1, sprite.rect.bottom)):
+                if player.hitbox.collidepoint((sprite.rect.left + 2, sprite.rect.bottom - 1)) or player.hitbox.collidepoint((sprite.rect.right - 2, sprite.rect.bottom - 1)):
                     self.game_state = 0
             else:
-                if player.rect.collidepoint((sprite.rect.left + 1, sprite.rect.top)) or player.rect.collidepoint((sprite.rect.right - 1, sprite.rect.top)):
+                if player.rect.collidepoint((sprite.rect.left + 2, sprite.rect.top + 1)) or player.rect.collidepoint((sprite.rect.right - 2, sprite.rect.top + 1)):
                     self.game_state = 0
         for sprite in self.orbs.sprites():
             if sprite.rect.colliderect(player.hitbox) and (player.dashing or not player.can_dash) and sprite.state:
@@ -452,8 +452,9 @@ class Level:
             sprite.update()
         for sprite in self.scores.sprites():
             sprite.update()
-        for sprite in self.clouds.sprites():
-            sprite.update()
+        if self.game_state == 1:
+            for sprite in self.clouds.sprites():
+                sprite.update()
         if self.flag:
             self.flag.update()
         if self.player.sprite.rect.top > 924:
