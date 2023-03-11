@@ -193,3 +193,4 @@ def display_score(score, time, deaths):
 
 if __name__ == '__main__':
     main()
+
